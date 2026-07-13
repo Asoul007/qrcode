@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getContentState, getDensityWarning } from './qr/content';
 import { createQrPngDataUrl, createQrSvg } from './qr/generator';
 import { copyText, downloadDataUrl, downloadTextFile } from './qr/export';
@@ -39,6 +39,7 @@ export default function App() {
   const [svgMarkup, setSvgMarkup] = useState('');
   const [generatedSignature, setGeneratedSignature] = useState('');
   const [actionMessage, setActionMessage] = useState('');
+  const previewVersionRef = useRef(0);
 
   const contentState = useMemo(() => getContentState(mode, rawValue), [mode, rawValue]);
   const densityWarning = useMemo(
@@ -67,6 +68,7 @@ export default function App() {
   }, []);
 
   function clearPreview() {
+    previewVersionRef.current += 1;
     setPngDataUrl('');
     setSvgMarkup('');
     setGeneratedSignature('');
@@ -75,6 +77,7 @@ export default function App() {
 
   useEffect(() => {
     let cancelled = false;
+    const requestVersion = previewVersionRef.current;
 
     async function generate() {
       if (!contentState.canGenerate) {
@@ -86,7 +89,7 @@ export default function App() {
         createQrSvg(contentState.normalizedValue, options),
       ]);
 
-      if (!cancelled) {
+      if (!cancelled && previewVersionRef.current === requestVersion) {
         setPngDataUrl(nextPng);
         setSvgMarkup(nextSvg);
         setGeneratedSignature(currentSignature);
@@ -282,7 +285,7 @@ export default function App() {
             <button disabled={!canExport} onClick={() => downloadTextFile('qr-code.svg', svgMarkup, 'image/svg+xml')} type="button">
               下载 SVG
             </button>
-            <button disabled={!isCurrentPreviewReady} onClick={handleCopy} type="button">
+            <button disabled={!contentState.canGenerate} onClick={handleCopy} type="button">
               复制内容
             </button>
           </div>

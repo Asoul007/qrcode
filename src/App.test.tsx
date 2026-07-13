@@ -1,4 +1,4 @@
-import { fireEvent, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import * as generator from './qr/generator';
@@ -74,10 +74,13 @@ describe('App', () => {
 
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
 
-    pngDeferred.resolve('data:image/png;base64,stale');
-    svgDeferred.resolve('<svg></svg>');
+    await act(async () => {
+      pngDeferred.resolve('data:image/png;base64,stale');
+      svgDeferred.resolve('<svg></svg>');
+      await Promise.resolve();
+    });
 
-    await waitFor(() => expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument());
+    expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
   });
 
   it('switches to text mode and generates after the button is clicked', async () => {
