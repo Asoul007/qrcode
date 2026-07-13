@@ -1,0 +1,18 @@
+:root {
+  color: #17201b;
+  background: #f7f8f5;
+  font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 28px clamp(18px, 4vw, 48px);
+}

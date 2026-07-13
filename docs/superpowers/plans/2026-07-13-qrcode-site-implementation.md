@@ -82,7 +82,7 @@ Create `package.json`:
     "jsdom": "^25.0.1",
     "typescript": "^5.7.2",
     "vite": "^6.0.5",
-    "vitest": "^2.1.8"
+    "vitest": "^4.1.10"
   }
 }
 ```
@@ -163,12 +163,13 @@ Create `vite.config.ts`:
 
 ```ts
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
+    passWithNoTests: true,
     setupFiles: ['./src/test/setup.ts'],
   },
 });
