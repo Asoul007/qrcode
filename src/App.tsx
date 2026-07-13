@@ -39,6 +39,7 @@ export default function App() {
   const [svgMarkup, setSvgMarkup] = useState('');
   const [generatedSignature, setGeneratedSignature] = useState('');
   const [actionMessage, setActionMessage] = useState('');
+  const [sizeDraft, setSizeDraft] = useState(String(defaultOptions.size));
   const previewVersionRef = useRef(0);
 
   const contentState = useMemo(() => getContentState(mode, rawValue), [mode, rawValue]);
@@ -113,6 +114,10 @@ export default function App() {
   }, [generationRequest]);
 
   function switchMode(nextMode: InputMode) {
+    if (nextMode === mode) {
+      return;
+    }
+
     clearPreview();
     setMode(nextMode);
   }
@@ -143,9 +148,19 @@ export default function App() {
     setOptions((current) => ({ ...current, [key]: value }));
   }
 
-  function handleSizeChange(value: number) {
+  function commitSizeDraft() {
+    const nextSize = normalizeSize(Number(sizeDraft));
+    if (options.size !== nextSize) {
+      clearPreview();
+    }
+
+    setOptions((current) => ({ ...current, size: nextSize }));
+    setSizeDraft(String(nextSize));
+  }
+
+  function handleSizeChange(value: string) {
     clearPreview();
-    setOptions((current) => ({ ...current, size: normalizeSize(value) }));
+    setSizeDraft(value);
   }
 
   const isCurrentPreviewReady =
@@ -218,7 +233,15 @@ export default function App() {
             >
               清空
             </button>
-            <button className="primary" disabled={!contentState.canGenerate} onClick={() => setGenerationRequest((value) => value + 1)} type="button">
+            <button
+              className="primary"
+              disabled={!contentState.canGenerate}
+              onClick={() => {
+                commitSizeDraft();
+                setGenerationRequest((value) => value + 1);
+              }}
+              type="button"
+            >
               生成二维码
             </button>
           </div>
@@ -260,8 +283,9 @@ export default function App() {
                 max="1024"
                 step="128"
                 type="number"
-                value={options.size}
-                onChange={(event) => handleSizeChange(Number(event.target.value))}
+                value={sizeDraft}
+                onBlur={commitSizeDraft}
+                onChange={(event) => handleSizeChange(event.target.value)}
               />
             </label>
             <label>

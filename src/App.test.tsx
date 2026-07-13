@@ -64,6 +64,20 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '复制内容' })).toBeDisabled();
   });
 
+  it('ignores clicks on the active mode button', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
+
+    await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: 'JSON' }));
+
+    expect(screen.getByAltText('生成的二维码')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '下载 PNG' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '下载 SVG' })).toBeEnabled();
+  });
+
   it('drops stale generation results after the content changes', async () => {
     const pngDeferred = createDeferred<string>();
     const svgDeferred = createDeferred<string>();
@@ -108,12 +122,13 @@ describe('App', () => {
 
     fireEvent.change(screen.getByLabelText('尺寸'), { target: { value: '99999' } });
 
-    expect(screen.getByText('1024 px')).toBeInTheDocument();
+    expect(screen.getByLabelText('尺寸')).toHaveDisplayValue('99999');
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
     expect(screen.getByText('等待生成二维码…')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
 
     await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
+    expect(screen.getByLabelText('尺寸')).toHaveDisplayValue('1024');
   });
 });
