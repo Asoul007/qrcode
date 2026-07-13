@@ -25,6 +25,7 @@ export default function App() {
   const [mode, setMode] = useState<InputMode>('json');
   const [rawValue, setRawValue] = useState(defaultJson);
   const [options, setOptions] = useState<QrOptions>(defaultOptions);
+  const [generationRequest, setGenerationRequest] = useState(0);
   const [pngDataUrl, setPngDataUrl] = useState('');
   const [svgMarkup, setSvgMarkup] = useState('');
   const [actionMessage, setActionMessage] = useState('');
@@ -34,9 +35,18 @@ export default function App() {
     () => getDensityWarning(contentState.normalizedValue),
     [contentState.normalizedValue],
   );
+  const currentDomain = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return 'https://qr.example.com';
+    }
+
+    return window.location.origin === 'null' ? 'https://qr.example.com' : window.location.origin;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
+    setPngDataUrl('');
+    setSvgMarkup('');
 
     async function generate() {
       if (!contentState.canGenerate) {
@@ -52,6 +62,7 @@ export default function App() {
       if (!cancelled) {
         setPngDataUrl(nextPng);
         setSvgMarkup(nextSvg);
+        setActionMessage('');
       }
     }
 
@@ -64,7 +75,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [contentState.canGenerate, contentState.normalizedValue, options]);
+  }, [contentState.canGenerate, contentState.normalizedValue, generationRequest, options]);
 
   function switchMode(nextMode: InputMode) {
     setMode(nextMode);
@@ -95,8 +106,8 @@ export default function App() {
     setOptions((current) => ({ ...current, [key]: value }));
   }
 
-  const currentDomain = window.location.origin === 'null' ? 'https://qr.example.com' : window.location.origin;
   const canExport = contentState.canGenerate && Boolean(pngDataUrl && svgMarkup);
+  const previewLabel = contentState.canGenerate ? '正在生成二维码…' : '等待输入内容';
 
   return (
     <main className="page">
@@ -154,7 +165,7 @@ export default function App() {
             <button onClick={() => setRawValue('')} type="button">
               清空
             </button>
-            <button className="primary" disabled={!contentState.canGenerate} type="button">
+            <button className="primary" disabled={!contentState.canGenerate} onClick={() => setGenerationRequest((value) => value + 1)} type="button">
               生成二维码
             </button>
           </div>
@@ -172,7 +183,7 @@ export default function App() {
 
           <div className="qr-stage">
             <div className="qr-box">
-              {pngDataUrl ? <img alt="生成的二维码" src={pngDataUrl} /> : <span>等待输入内容</span>}
+              {pngDataUrl ? <img alt="生成的二维码" src={pngDataUrl} /> : <span>{previewLabel}</span>}
             </div>
           </div>
 
