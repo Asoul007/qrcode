@@ -34,7 +34,7 @@ export default function App() {
   const [mode, setMode] = useState<InputMode>('json');
   const [rawValue, setRawValue] = useState(defaultJson);
   const [options, setOptions] = useState<QrOptions>(defaultOptions);
-  const [generationRequest, setGenerationRequest] = useState(0);
+  const [generationRequest, setGenerationRequest] = useState(1);
   const [pngDataUrl, setPngDataUrl] = useState('');
   const [svgMarkup, setSvgMarkup] = useState('');
   const [generatedSignature, setGeneratedSignature] = useState('');
@@ -67,11 +67,17 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    setPngDataUrl('');
+    setSvgMarkup('');
+    setGeneratedSignature('');
+    setActionMessage('');
+  }, [contentState.canGenerate, contentState.normalizedValue, options]);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function generate() {
       if (!contentState.canGenerate) {
-        setActionMessage('');
         return;
       }
 
@@ -97,7 +103,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [contentState.canGenerate, contentState.normalizedValue, currentSignature, generationRequest, options]);
+  }, [generationRequest]);
 
   function switchMode(nextMode: InputMode) {
     setMode(nextMode);
@@ -132,8 +138,10 @@ export default function App() {
     setOptions((current) => ({ ...current, size: normalizeSize(value) }));
   }
 
-  const canExport = contentState.canGenerate && generatedSignature === currentSignature && Boolean(pngDataUrl && svgMarkup);
-  const previewLabel = contentState.canGenerate ? '正在生成二维码…' : '等待输入内容';
+  const isCurrentPreviewReady =
+    contentState.canGenerate && generatedSignature === currentSignature && Boolean(pngDataUrl && svgMarkup);
+  const canExport = isCurrentPreviewReady;
+  const previewLabel = contentState.canGenerate ? '等待生成二维码…' : '等待输入内容';
 
   return (
     <main className="page">
@@ -262,7 +270,7 @@ export default function App() {
             <button disabled={!canExport} onClick={() => downloadTextFile('qr-code.svg', svgMarkup, 'image/svg+xml')} type="button">
               下载 SVG
             </button>
-            <button disabled={!contentState.canGenerate} onClick={handleCopy} type="button">
+            <button disabled={!isCurrentPreviewReady} onClick={handleCopy} type="button">
               复制内容
             </button>
           </div>
