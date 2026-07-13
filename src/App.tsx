@@ -66,12 +66,12 @@ export default function App() {
     return window.location.origin === 'null' ? 'https://qr.example.com' : window.location.origin;
   }, []);
 
-  useEffect(() => {
+  function clearPreview() {
     setPngDataUrl('');
     setSvgMarkup('');
     setGeneratedSignature('');
     setActionMessage('');
-  }, [contentState.canGenerate, contentState.normalizedValue, options]);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -106,13 +106,14 @@ export default function App() {
   }, [generationRequest]);
 
   function switchMode(nextMode: InputMode) {
+    clearPreview();
     setMode(nextMode);
-    setActionMessage('');
   }
 
   function formatJson() {
     const nextState = getContentState('json', rawValue);
     if (nextState.canGenerate) {
+      clearPreview();
       setRawValue(nextState.normalizedValue);
       setActionMessage('JSON 已格式化。');
       return;
@@ -131,10 +132,12 @@ export default function App() {
   }
 
   function updateOption<K extends keyof QrOptions>(key: K, value: QrOptions[K]) {
+    clearPreview();
     setOptions((current) => ({ ...current, [key]: value }));
   }
 
   function handleSizeChange(value: number) {
+    clearPreview();
     setOptions((current) => ({ ...current, size: normalizeSize(value) }));
   }
 
@@ -184,7 +187,10 @@ export default function App() {
             id="content"
             spellCheck={false}
             value={rawValue}
-            onChange={(event) => setRawValue(event.target.value)}
+            onChange={(event) => {
+              clearPreview();
+              setRawValue(event.target.value);
+            }}
           />
 
           <div className={contentState.error ? 'status danger' : 'status'}>
@@ -196,7 +202,13 @@ export default function App() {
             <button disabled={mode !== 'json'} onClick={formatJson} type="button">
               格式化 JSON
             </button>
-            <button onClick={() => setRawValue('')} type="button">
+            <button
+              onClick={() => {
+                clearPreview();
+                setRawValue('');
+              }}
+              type="button"
+            >
               清空
             </button>
             <button className="primary" disabled={!contentState.canGenerate} onClick={() => setGenerationRequest((value) => value + 1)} type="button">
@@ -209,7 +221,7 @@ export default function App() {
         <aside className="panel preview" aria-label="二维码预览">
           <div className="preview-head">
             <div>
-              <h2>实时预览</h2>
+              <h2>预览</h2>
               <p>适合手机摄像头和常见扫码工具。</p>
             </div>
             <span className="quality">{options.size} px</span>
