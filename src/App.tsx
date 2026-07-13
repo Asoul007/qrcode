@@ -21,6 +21,15 @@ const defaultOptions: QrOptions = {
   background: '#FFFFFF',
 };
 
+function normalizeSize(value: number): number {
+  if (!Number.isFinite(value)) {
+    return defaultOptions.size;
+  }
+
+  const stepped = Math.round(value / 128) * 128;
+  return Math.min(1024, Math.max(256, stepped));
+}
+
 export default function App() {
   const [mode, setMode] = useState<InputMode>('json');
   const [rawValue, setRawValue] = useState(defaultJson);
@@ -28,6 +37,7 @@ export default function App() {
   const [generationRequest, setGenerationRequest] = useState(0);
   const [pngDataUrl, setPngDataUrl] = useState('');
   const [svgMarkup, setSvgMarkup] = useState('');
+  const [generatedSignature, setGeneratedSignature] = useState('');
   const [actionMessage, setActionMessage] = useState('');
 
   const contentState = useMemo(() => getContentState(mode, rawValue), [mode, rawValue]);
@@ -35,6 +45,19 @@ export default function App() {
     () => getDensityWarning(contentState.normalizedValue),
     [contentState.normalizedValue],
   );
+  const currentSignature = useMemo(() => {
+    if (!contentState.canGenerate) {
+      return '';
+    }
+
+    return [
+      contentState.normalizedValue,
+      options.errorCorrectionLevel,
+      options.size,
+      options.foreground,
+      options.background,
+    ].join('\u0000');
+  }, [contentState.canGenerate, contentState.normalizedValue, options]);
   const currentDomain = useMemo(() => {
     if (typeof window === 'undefined') {
       return 'https://qr.example.com';
@@ -45,8 +68,6 @@ export default function App() {
 
   useEffect(() => {
     let cancelled = false;
-    setPngDataUrl('');
-    setSvgMarkup('');
 
     async function generate() {
       if (!contentState.canGenerate) {
@@ -62,6 +83,7 @@ export default function App() {
       if (!cancelled) {
         setPngDataUrl(nextPng);
         setSvgMarkup(nextSvg);
+        setGeneratedSignature(currentSignature);
         setActionMessage('');
       }
     }
@@ -75,7 +97,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [contentState.canGenerate, contentState.normalizedValue, generationRequest, options]);
+  }, [contentState.canGenerate, contentState.normalizedValue, currentSignature, generationRequest, options]);
 
   function switchMode(nextMode: InputMode) {
     setMode(nextMode);
@@ -106,7 +128,11 @@ export default function App() {
     setOptions((current) => ({ ...current, [key]: value }));
   }
 
-  const canExport = contentState.canGenerate && Boolean(pngDataUrl && svgMarkup);
+  function handleSizeChange(value: number) {
+    setOptions((current) => ({ ...current, size: normalizeSize(value) }));
+  }
+
+  const canExport = contentState.canGenerate && generatedSignature === currentSignature && Boolean(pngDataUrl && svgMarkup);
   const previewLabel = contentState.canGenerate ? '正在生成二维码…' : '等待输入内容';
 
   return (
@@ -208,7 +234,7 @@ export default function App() {
                 step="128"
                 type="number"
                 value={options.size}
-                onChange={(event) => updateOption('size', Number(event.target.value))}
+                onChange={(event) => handleSizeChange(Number(event.target.value))}
               />
             </label>
             <label>

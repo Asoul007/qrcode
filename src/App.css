@@ -226,8 +226,14 @@ textarea {
 
 .status {
   margin-top: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
   color: var(--json);
   font-size: 13px;
+}
+
+.status > span:first-child {
+  flex: 1 1 240px;
 }
 
 .status.danger {
@@ -358,5 +364,9 @@ textarea {
   .controls,
   .export-actions {
     grid-template-columns: 1fr;
+  }
+
+  .status > span:last-child {
+    margin-left: 0;
   }
 }
