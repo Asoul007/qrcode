@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QR Code Site - Main Screen Design</title>
+    <style>
+      :root {
+        --bg: #f7f8f5;
+        --surface: #ffffff;
+        --ink: #17201b;
+        --muted: #637066;
+        --line: #dfe6dc;
+        --accent: #0f766e;
+        --accent-strong: #0b5f59;
+        --json: #8a5b12;
+        --danger: #b42318;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          Inter,
+          "Segoe UI",
+          "PingFang SC",
+          "Microsoft YaHei",
+          Arial,
+          sans-serif;
+      }
+
+      .page {
+        min-height: 100vh;
+        padding: 28px clamp(18px, 4vw, 48px);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin: 0 auto 28px;
+        max-width: 1180px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--accent);
+        font-size: 17px;
+        font-weight: 800;
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 19px;
+        line-height: 1.2;
+      }
+
+      .brand p {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .domain {
+        min-width: 270px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        padding: 10px 12px;
+      }
+
+      .domain span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .domain strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+        gap: 24px;
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .editor {
+        padding: 24px;
+      }
+
+      .section-title {
+        margin: 0;
+        font-size: 25px;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+
+      .helper {
+        margin: 8px 0 22px;
+        max-width: 620px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .segmented {
+        display: inline-grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #eef3ee;
+        padding: 4px;
+      }
+
+      .segment {
+        min-width: 94px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        padding: 9px 12px;
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .segment.active {
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: 0 1px 2px rgb(23 32 27 / 10%);
+      }
+
+      .field-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      label {
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 310px;
+        margin-top: 10px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfa;
+        color: var(--ink);
+        padding: 16px;
+        font-family:
+          "JetBrains Mono",
+          "Cascadia Code",
+          Consolas,
+          monospace;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+        color: var(--json);
+        font-size: 13px;
+      }
+
+      .secondary-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      button {
+        min-height: 40px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink);
+        padding: 0 14px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .primary {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #ffffff;
+      }
+
+      .primary:hover {
+        background: var(--accent-strong);
+      }
+
+      .preview {
+        display: flex;
+        min-height: 100%;
+        flex-direction: column;
+        padding: 24px;
+      }
+
+      .preview-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .preview-head h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .preview-head p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .quality {
+        border: 1px solid #cfe0dc;
+        border-radius: 999px;
+        color: var(--accent);
+        padding: 5px 9px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .qr-stage {
+        display: grid;
+        min-height: 360px;
+        margin: 28px 0 20px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f9faf7;
+      }
+
+      .qr-box {
+        display: grid;
+        width: min(72%, 292px);
+        aspect-ratio: 1;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 18px;
+      }
+
+      .qr-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: auto;
+      }
+
+      .option {
+        border-top: 1px solid var(--line);
+        padding-top: 12px;
+      }
+
+      .option span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .option strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 14px;
+      }
+
+      .export-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      @media (max-width: 860px) {
+        .topbar,
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .domain {
+          min-width: 0;
+        }
+
+        .workspace {
+          display: block;
+        }
+
+        .preview {
+          margin-top: 18px;
+        }
+
+        .options,
+        .export-actions {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">QR</div>
+          <div>
+            <h1>QR Studio</h1>
+            <p>文本与 JSON 二维码生成器</p>
+          </div>
+        </div>
+        <div class="domain">
+          <span>当前绑定域名</span>
+          <strong>https://qr.example.com</strong>
+        </div>
+      </header>
+
+      <section class="workspace" aria-label="二维码生成工作台">
+        <div class="panel editor">
+          <h2 class="section-title">输入内容，立即生成二维码</h2>
+          <p class="helper">
+            MVP 只处理本地输入的文本或 JSON，不上传内容。JSON 模式会先校验，再生成可下载的 PNG 或 SVG。
+          </p>
+
+          <div class="segmented" aria-label="输入模式">
+            <button class="segment">文本</button>
+            <button class="segment active">JSON</button>
+          </div>
+
+          <div class="field-row">
+            <label for="content">二维码内容</label>
+            <span class="count">92 字符</span>
+          </div>
+
+          <textarea id="content" spellcheck="false">{
+  "type": "demo",
+  "site": "qr.example.com",
+  "content": "hello"
+}</textarea>
+
+          <div class="status">
+            <span>JSON 有效，已按 2 空格缩进格式化。</span>
+            <span>纠错等级 M</span>
+          </div>
+
+          <div class="secondary-actions">
+            <button>格式化 JSON</button>
+            <button>清空</button>
+            <button class="primary">生成二维码</button>
+          </div>
+        </div>
+
+        <aside class="panel preview" aria-label="二维码预览">
+          <div class="preview-head">
+            <div>
+              <h2>实时预览</h2>
+              <p>适合手机摄像头和常见扫码工具。</p>
+            </div>
+            <span class="quality">512 px</span>
+          </div>
+
+          <div class="qr-stage">
+            <div class="qr-box">
+              <img src="sample-qr.svg" alt="示例二维码" />
+            </div>
+          </div>
+
+          <div class="options">
+            <div class="option">
+              <span>前景色</span>
+              <strong>#17201B</strong>
+            </div>
+            <div class="option">
+              <span>背景色</span>
+              <strong>#FFFFFF</strong>
+            </div>
+            <div class="option">
+              <span>输出格式</span>
+              <strong>PNG / SVG</strong>
+            </div>
+          </div>
+
+          <div class="export-actions">
+            <button class="primary">下载 PNG</button>
+            <button>下载 SVG</button>
+            <button>复制内容</button>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>
