@@ -28,7 +28,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '生成二维码' })).toBeEnabled();
     expect(screen.getByRole('button', { name: '下载 PNG' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '下载 SVG' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: '复制内容' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '复制内容' })).toBeDisabled();
   });
 
   it('clears the preview and blocks actions for invalid JSON', () => {
@@ -53,7 +53,9 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: '格式化 JSON' }));
 
     expect(screen.getByText('JSON 已格式化。')).toBeInTheDocument();
-    expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
+    expect(screen.getByAltText('生成的二维码')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '下载 PNG' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '复制内容' })).toBeEnabled();
 
     fireEvent.click(screen.getByRole('button', { name: '清空' }));
 

@@ -125,7 +125,9 @@ export default function App() {
   function formatJson() {
     const nextState = getContentState('json', rawValue);
     if (nextState.canGenerate) {
-      clearPreview();
+      if (nextState.normalizedValue !== contentState.normalizedValue) {
+        clearPreview();
+      }
       setRawValue(nextState.normalizedValue);
       setActionMessage('JSON 已格式化。');
       return;
@@ -313,7 +315,7 @@ export default function App() {
             <button disabled={!canExport} onClick={() => downloadTextFile('qr-code.svg', svgMarkup, 'image/svg+xml')} type="button">
               下载 SVG
             </button>
-            <button disabled={!contentState.canGenerate} onClick={handleCopy} type="button">
+            <button disabled={!isCurrentPreviewReady} onClick={handleCopy} type="button">
               复制内容
             </button>
           </div>
