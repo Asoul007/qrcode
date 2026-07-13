@@ -1,9 +1,20 @@
 import { fireEvent, cleanup, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import * as generator from './qr/generator';
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+
+  return { promise, resolve };
+}
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
 });
 
 describe('App', () => {
@@ -47,6 +58,26 @@ describe('App', () => {
     expect(screen.getByText('等待输入内容')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '下载 PNG' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '复制内容' })).toBeDisabled();
+  });
+
+  it('drops stale generation results after the content changes', async () => {
+    const pngDeferred = createDeferred<string>();
+    const svgDeferred = createDeferred<string>();
+
+    vi.spyOn(generator, 'createQrPngDataUrl').mockReturnValue(pngDeferred.promise);
+    vi.spyOn(generator, 'createQrSvg').mockReturnValue(svgDeferred.promise);
+
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: '文本' }));
+    fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello world' } });
+
+    expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
+
+    pngDeferred.resolve('data:image/png;base64,stale');
+    svgDeferred.resolve('<svg></svg>');
+
+    await waitFor(() => expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument());
   });
 
   it('switches to text mode and generates after the button is clicked', async () => {
