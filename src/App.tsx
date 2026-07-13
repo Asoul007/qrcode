@@ -34,7 +34,7 @@ export default function App() {
   const [mode, setMode] = useState<InputMode>('json');
   const [rawValue, setRawValue] = useState(defaultJson);
   const [options, setOptions] = useState<QrOptions>(defaultOptions);
-  const [generationRequest, setGenerationRequest] = useState(1);
+  const [generationRequest, setGenerationRequest] = useState(0);
   const [pngDataUrl, setPngDataUrl] = useState('');
   const [svgMarkup, setSvgMarkup] = useState('');
   const [generatedSignature, setGeneratedSignature] = useState('');
@@ -76,6 +76,10 @@ export default function App() {
   }
 
   useEffect(() => {
+    if (generationRequest === 0) {
+      return;
+    }
+
     let cancelled = false;
     const requestVersion = previewVersionRef.current;
 
@@ -98,7 +102,7 @@ export default function App() {
     }
 
     generate().catch(() => {
-      if (!cancelled) {
+      if (!cancelled && previewVersionRef.current === requestVersion) {
         setActionMessage('二维码生成失败，请缩短内容后重试。');
       }
     });

@@ -18,19 +18,21 @@ afterEach(() => {
 });
 
 describe('App', () => {
-  it('renders the main QR Studio screen', async () => {
+  it('renders the main QR Studio screen with exports disabled before generation', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { name: 'QR Studio' })).toBeInTheDocument();
     expect(screen.getByLabelText('二维码内容')).toBeInTheDocument();
-
-    await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
+    expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
+    expect(screen.getByText('等待生成二维码…')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '生成二维码' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '下载 PNG' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '下载 SVG' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '复制内容' })).toBeEnabled();
   });
 
-  it('clears the preview and blocks actions for invalid JSON', async () => {
+  it('clears the preview and blocks actions for invalid JSON', () => {
     render(<App />);
-
-    await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
 
     fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: '{"site":' } });
 
@@ -43,6 +45,8 @@ describe('App', () => {
 
   it('clears preview and messages when the clear button is used', async () => {
     render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
 
     await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
 
@@ -69,6 +73,7 @@ describe('App', () => {
 
     render(<App />);
 
+    fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
     fireEvent.click(screen.getByRole('button', { name: '文本' }));
     fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello world' } });
 
@@ -105,6 +110,7 @@ describe('App', () => {
 
     expect(screen.getByText('1024 px')).toBeInTheDocument();
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
+    expect(screen.getByText('等待生成二维码…')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
 
