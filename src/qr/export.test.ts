@@ -1,5 +1,10 @@
-import { describe, expect, it, vi } from 'vitest';
-import { copyText, downloadTextFile } from './export';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { copyText, downloadDataUrl, downloadTextFile } from './export';
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
 
 describe('copyText', () => {
   it('copies text through navigator.clipboard', async () => {
@@ -14,21 +19,36 @@ describe('copyText', () => {
 
 describe('downloadTextFile', () => {
   it('creates and clicks a download link', () => {
-    const click = vi.fn();
+    vi.useFakeTimers();
+    const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:qr');
+    const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     const appendChild = vi.spyOn(document.body, 'appendChild');
     const removeChild = vi.spyOn(document.body, 'removeChild');
-    const createElement = vi.spyOn(document, 'createElement');
-
-    createElement.mockReturnValue({
-      href: '',
-      download: '',
-      click,
-    } as unknown as HTMLAnchorElement);
 
     downloadTextFile('qr.svg', '<svg></svg>', 'image/svg+xml');
 
-    expect(appendChild).toHaveBeenCalled();
-    expect(click).toHaveBeenCalled();
-    expect(removeChild).toHaveBeenCalled();
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    expect(appendChild).toHaveBeenCalledTimes(1);
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(removeChild).toHaveBeenCalledTimes(1);
+
+    vi.runAllTimers();
+
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:qr');
+  });
+});
+
+describe('downloadDataUrl', () => {
+  it('creates and clicks a direct data url download link', () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const appendChild = vi.spyOn(document.body, 'appendChild');
+    const removeChild = vi.spyOn(document.body, 'removeChild');
+
+    downloadDataUrl('qr.png', 'data:image/png;base64,abc');
+
+    expect(appendChild).toHaveBeenCalledTimes(1);
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(removeChild).toHaveBeenCalledTimes(1);
   });
 });
