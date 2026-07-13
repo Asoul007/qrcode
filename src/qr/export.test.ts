@@ -1,15 +1,24 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { copyText, downloadDataUrl, downloadTextFile } from './export';
 
+const originalClipboard = navigator.clipboard;
+
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: originalClipboard,
+  });
 });
 
 describe('copyText', () => {
   it('copies text through navigator.clipboard', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, { clipboard: { writeText } });
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
 
     await copyText('hello');
 
