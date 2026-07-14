@@ -44,9 +44,24 @@ describe('App', () => {
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
     expect(screen.getByText('JSON 格式无效，请检查括号、引号和逗号。')).toBeInTheDocument();
     expect(screen.getByText('等待输入内容')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '下载 PNG' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '复制内容' })).toBeDisabled();
+  });
+
+  it('enables format JSON only for valid JSON content', () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'JSON' }));
+    fireEvent.change(screen.getByLabelText('二维码内容'), {
+      target: { value: '{"site":"qr.example.com","content":"hello"}' },
+    });
+
+    expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeEnabled();
+    fireEvent.click(screen.getByRole('button', { name: '格式化 JSON' }));
+
+    expect(screen.getByText('JSON 已格式化。')).toBeInTheDocument();
+    expect(screen.getByLabelText('二维码内容')).toHaveValue('{\n  "site": "qr.example.com",\n  "content": "hello"\n}');
   });
 
   it('clears preview and messages when the clear button is used', async () => {

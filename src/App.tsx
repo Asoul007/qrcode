@@ -163,7 +163,7 @@ export default function App() {
   const previewLabel = contentState.canGenerate ? '等待生成二维码…' : '等待输入内容';
 
   const canClearInput = rawValue.trim().length > 0;
-  const canFormatJson = mode === 'json' && rawValue.trim().length > 0;
+  const canFormatJson = mode === 'json' && contentState.canGenerate;
 
   return (
     <main className="page">
