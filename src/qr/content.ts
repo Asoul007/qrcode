@@ -34,7 +34,7 @@ export function getContentState(mode: InputMode, rawValue: string): ContentState
       canGenerate: true,
       normalizedValue,
       error: null,
-      message: 'JSON 有效，已按 2 空格缩进格式化。',
+      message: 'JSON 有效，可点击格式化 JSON 按钮。',
       characterCount: normalizedValue.length,
     };
   } catch {

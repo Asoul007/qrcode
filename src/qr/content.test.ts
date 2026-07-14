@@ -28,7 +28,7 @@ describe('getContentState', () => {
     expect(result.canGenerate).toBe(true);
     expect(result.normalizedValue).toBe('{\n  "site": "qr.example.com",\n  "ok": true\n}');
     expect(result.error).toBeNull();
-    expect(result.message).toBe('JSON 有效，已按 2 空格缩进格式化。');
+    expect(result.message).toBe('JSON 有效，可点击格式化 JSON 按钮。');
   });
 
   it('formats valid JSON arrays with two-space indentation', () => {
