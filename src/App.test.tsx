@@ -23,7 +23,7 @@ describe('App', () => {
 
     expect(screen.getByRole('heading', { name: 'QR Studio' })).toBeInTheDocument();
     expect(screen.getByLabelText('二维码内容')).toHaveValue('');
-    expect(screen.getByLabelText('二维码内容')).toHaveAttribute('placeholder', 'holderplace');
+    expect(screen.getByLabelText('二维码内容')).toHaveAttribute('placeholder', '请输入文本内容');
     expect(screen.getByRole('button', { name: '文本' })).toHaveClass('active');
     expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeDisabled();
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();

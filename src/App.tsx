@@ -201,7 +201,7 @@ export default function App() {
 
           <textarea
             id="content"
-            placeholder="holderplace"
+            placeholder="请输入文本内容"
             spellCheck={false}
             value={rawValue}
             onChange={(event) => {
