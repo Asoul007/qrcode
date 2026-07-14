@@ -163,6 +163,7 @@ export default function App() {
   const previewLabel = contentState.canGenerate ? '等待生成二维码…' : '等待输入内容';
 
   const canClearInput = rawValue.trim().length > 0;
+  const canFormatJson = mode === 'json' && rawValue.trim().length > 0;
 
   return (
     <main className="page">
@@ -218,7 +219,7 @@ export default function App() {
           </div>
 
           <div className="secondary-actions">
-            <button disabled={mode !== 'json'} onClick={formatJson} type="button">
+            <button disabled={!canFormatJson} onClick={formatJson} type="button">
               格式化 JSON
             </button>
             <button

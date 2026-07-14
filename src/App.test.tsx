@@ -44,6 +44,7 @@ describe('App', () => {
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
     expect(screen.getByText('JSON 格式无效，请检查括号、引号和逗号。')).toBeInTheDocument();
     expect(screen.getByText('等待输入内容')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeEnabled();
     expect(screen.getByRole('button', { name: '下载 PNG' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '复制内容' })).toBeDisabled();
   });
