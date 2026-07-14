@@ -4,15 +4,7 @@ import { createQrPngDataUrl, createQrSvg } from './qr/generator';
 import { copyText, downloadDataUrl, downloadTextFile } from './qr/export';
 import type { ErrorCorrectionLevel, InputMode, QrOptions } from './qr/types';
 
-const defaultJson = JSON.stringify(
-  {
-    type: 'demo',
-    site: 'qr.example.com',
-    content: 'hello',
-  },
-  null,
-  2,
-);
+const defaultText = 'Hello QR Studio';
 
 const defaultOptions: QrOptions = {
   errorCorrectionLevel: 'M',
@@ -31,8 +23,8 @@ function normalizeSize(value: number): number {
 }
 
 export default function App() {
-  const [mode, setMode] = useState<InputMode>('json');
-  const [rawValue, setRawValue] = useState(defaultJson);
+  const [mode, setMode] = useState<InputMode>('text');
+  const [rawValue, setRawValue] = useState(defaultText);
   const [options, setOptions] = useState<QrOptions>(defaultOptions);
   const [generationRequest, setGenerationRequest] = useState(0);
   const [pngDataUrl, setPngDataUrl] = useState('');

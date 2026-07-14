@@ -18,11 +18,13 @@ afterEach(() => {
 });
 
 describe('App', () => {
-  it('renders the main QR Studio screen with exports disabled before generation', () => {
+  it('renders the main QR Studio screen with text mode selected by default', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { name: 'QR Studio' })).toBeInTheDocument();
-    expect(screen.getByLabelText('二维码内容')).toBeInTheDocument();
+    expect(screen.getByLabelText('二维码内容')).toHaveValue('Hello QR Studio');
+    expect(screen.getByRole('button', { name: '文本' })).toHaveClass('active');
+    expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeDisabled();
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
     expect(screen.getByText('等待生成二维码…')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '生成二维码' })).toBeEnabled();
@@ -34,6 +36,7 @@ describe('App', () => {
   it('clears the preview and blocks actions for invalid JSON', () => {
     render(<App />);
 
+    fireEvent.click(screen.getByRole('button', { name: 'JSON' }));
     fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: '{"site":' } });
 
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
@@ -46,6 +49,10 @@ describe('App', () => {
   it('clears preview and messages when the clear button is used', async () => {
     render(<App />);
 
+    fireEvent.click(screen.getByRole('button', { name: 'JSON' }));
+    fireEvent.change(screen.getByLabelText('二维码内容'), {
+      target: { value: '{"site":"qr.example.com","content":"hello"}' },
+    });
     fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
 
     await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
@@ -73,7 +80,7 @@ describe('App', () => {
 
     await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
 
-    fireEvent.click(screen.getByRole('button', { name: 'JSON' }));
+    fireEvent.click(screen.getByRole('button', { name: '文本' }));
 
     expect(screen.getByAltText('生成的二维码')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '下载 PNG' })).toBeEnabled();
@@ -90,7 +97,6 @@ describe('App', () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
-    fireEvent.click(screen.getByRole('button', { name: '文本' }));
     fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello world' } });
 
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
@@ -104,10 +110,9 @@ describe('App', () => {
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
   });
 
-  it('switches to text mode and generates after the button is clicked', async () => {
+  it('generates text QR after the button is clicked', async () => {
     render(<App />);
 
-    fireEvent.click(screen.getByRole('button', { name: '文本' }));
     fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello world' } });
 
     expect(screen.getByText('文本有效。')).toBeInTheDocument();
