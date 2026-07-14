@@ -4,7 +4,7 @@ import { createQrPngDataUrl, createQrSvg } from './qr/generator';
 import { copyText, downloadDataUrl, downloadTextFile } from './qr/export';
 import type { ErrorCorrectionLevel, InputMode, QrOptions } from './qr/types';
 
-const defaultText = 'Hello QR Studio';
+const defaultText = '';
 
 const defaultOptions: QrOptions = {
   errorCorrectionLevel: 'M',
@@ -201,6 +201,7 @@ export default function App() {
 
           <textarea
             id="content"
+            placeholder="holderplace"
             spellCheck={false}
             value={rawValue}
             onChange={(event) => {

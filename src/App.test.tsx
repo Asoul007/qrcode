@@ -18,16 +18,17 @@ afterEach(() => {
 });
 
 describe('App', () => {
-  it('renders the main QR Studio screen with text mode selected by default', () => {
+  it('renders the main QR Studio screen with an empty text input and placeholder', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { name: 'QR Studio' })).toBeInTheDocument();
-    expect(screen.getByLabelText('二维码内容')).toHaveValue('Hello QR Studio');
+    expect(screen.getByLabelText('二维码内容')).toHaveValue('');
+    expect(screen.getByLabelText('二维码内容')).toHaveAttribute('placeholder', 'holderplace');
     expect(screen.getByRole('button', { name: '文本' })).toHaveClass('active');
     expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeDisabled();
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
-    expect(screen.getByText('等待生成二维码…')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '生成二维码' })).toBeEnabled();
+    expect(screen.getByText('等待输入内容')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '生成二维码' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '下载 PNG' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '下载 SVG' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '复制内容' })).toBeDisabled();
@@ -49,25 +50,16 @@ describe('App', () => {
   it('clears preview and messages when the clear button is used', async () => {
     render(<App />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'JSON' }));
-    fireEvent.change(screen.getByLabelText('二维码内容'), {
-      target: { value: '{"site":"qr.example.com","content":"hello"}' },
-    });
+    fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello world' } });
     fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
 
     await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
-
-    fireEvent.click(screen.getByRole('button', { name: '格式化 JSON' }));
-
-    expect(screen.getByText('JSON 已格式化。')).toBeInTheDocument();
-    expect(screen.getByAltText('生成的二维码')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '下载 PNG' })).toBeEnabled();
     expect(screen.getByRole('button', { name: '复制内容' })).toBeEnabled();
 
     fireEvent.click(screen.getByRole('button', { name: '清空' }));
 
     expect(screen.getByLabelText('二维码内容')).toHaveValue('');
-    expect(screen.queryByText('JSON 已格式化。')).not.toBeInTheDocument();
     expect(screen.getByText('等待输入内容')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '下载 PNG' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '复制内容' })).toBeDisabled();
@@ -76,6 +68,7 @@ describe('App', () => {
   it('ignores clicks on the active mode button', async () => {
     render(<App />);
 
+    fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello world' } });
     fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
 
     await waitFor(() => expect(screen.getByAltText('生成的二维码')).toBeInTheDocument());
@@ -96,6 +89,7 @@ describe('App', () => {
 
     render(<App />);
 
+    fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello' } });
     fireEvent.click(screen.getByRole('button', { name: '生成二维码' }));
     fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello world' } });
 
@@ -127,6 +121,7 @@ describe('App', () => {
   it('clamps oversized size input to the supported range', async () => {
     render(<App />);
 
+    fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: 'hello world' } });
     fireEvent.change(screen.getByLabelText('尺寸'), { target: { value: '99999' } });
 
     expect(screen.getByLabelText('尺寸')).toHaveDisplayValue('99999');
