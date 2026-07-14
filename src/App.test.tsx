@@ -26,6 +26,7 @@ describe('App', () => {
     expect(screen.getByLabelText('二维码内容')).toHaveAttribute('placeholder', '请输入文本内容');
     expect(screen.getByRole('button', { name: '文本' })).toHaveClass('active');
     expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '清空' })).toBeDisabled();
     expect(screen.queryByAltText('生成的二维码')).not.toBeInTheDocument();
     expect(screen.getByText('等待输入内容')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '生成二维码' })).toBeDisabled();

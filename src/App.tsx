@@ -162,6 +162,8 @@ export default function App() {
   const canExport = isCurrentPreviewReady;
   const previewLabel = contentState.canGenerate ? '等待生成二维码…' : '等待输入内容';
 
+  const canClearInput = rawValue.trim().length > 0;
+
   return (
     <main className="page">
       <header className="topbar">
@@ -220,6 +222,7 @@ export default function App() {
               格式化 JSON
             </button>
             <button
+              disabled={!canClearInput}
               onClick={() => {
                 clearPreview();
                 setRawValue('');
