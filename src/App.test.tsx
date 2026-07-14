@@ -49,6 +49,17 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '复制内容' })).toBeDisabled();
   });
 
+  it('blocks primitive JSON values in json mode', () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'JSON' }));
+    fireEvent.change(screen.getByLabelText('二维码内容'), { target: { value: '47217572142333535' } });
+
+    expect(screen.getByText('JSON 格式无效，请检查括号、引号和逗号。')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '格式化 JSON' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '生成二维码' })).toBeDisabled();
+  });
+
   it('enables format JSON only for valid JSON content', () => {
     render(<App />);
 

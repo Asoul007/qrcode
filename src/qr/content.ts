@@ -25,6 +25,9 @@ export function getContentState(mode: InputMode, rawValue: string): ContentState
 
   try {
     const parsed = JSON.parse(rawValue);
+    if (typeof parsed !== 'object' || parsed === null) {
+      throw new Error('JSON root must be an object or array');
+    }
     const normalizedValue = JSON.stringify(parsed, null, 2);
 
     return {

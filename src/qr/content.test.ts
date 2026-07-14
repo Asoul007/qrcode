@@ -22,13 +22,29 @@ describe('getContentState', () => {
     expect(result.normalizedValue).toBe('');
   });
 
-  it('formats valid JSON with two-space indentation', () => {
+  it('formats valid JSON objects with two-space indentation', () => {
     const result = getContentState('json', '{"site":"qr.example.com","ok":true}');
 
     expect(result.canGenerate).toBe(true);
     expect(result.normalizedValue).toBe('{\n  "site": "qr.example.com",\n  "ok": true\n}');
     expect(result.error).toBeNull();
     expect(result.message).toBe('JSON 有效，已按 2 空格缩进格式化。');
+  });
+
+  it('formats valid JSON arrays with two-space indentation', () => {
+    const result = getContentState('json', '["qr.example.com",{"ok":true}]');
+
+    expect(result.canGenerate).toBe(true);
+    expect(result.normalizedValue).toBe('[\n  "qr.example.com",\n  {\n    "ok": true\n  }\n]');
+    expect(result.error).toBeNull();
+  });
+
+  it('blocks primitive JSON values in json mode', () => {
+    const result = getContentState('json', '47217572142333535');
+
+    expect(result.canGenerate).toBe(false);
+    expect(result.normalizedValue).toBe('');
+    expect(result.error).toBe('JSON 格式无效，请检查括号、引号和逗号。');
   });
 
   it('blocks invalid JSON with a clear message', () => {
